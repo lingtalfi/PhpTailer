@@ -42,7 +42,7 @@ class PhpTailer
      *              Note that we don't do special escape treatment, so that you can use the full regex power (alternatives, ...)
      *              So if you are looking for a string like [debug], you should escape it manually (i.e. \[debug\])
      */
-    public function output(array $params = [])
+    public function output(array $params = [], &$nbPages = 0)
     {
         $page = $params['page'] ?? 1;
         $expression = $params['expression'] ?? null;
@@ -50,7 +50,18 @@ class PhpTailer
         if ($this->nipp > 0) {
 
             if (file_exists($this->file)) {
-                $nbLines = self::getNbLines($this->file);
+
+                // first getting the number of lines
+                $cmd = "cat \"" . str_replace('"', '\"', $this->file) . "\"";
+                if ($expression) {
+                    $cmd .= " | grep \"" . $expression . "\"";
+                }
+                $cmd .= " | wc -l";
+                ob_start();
+                passthru($cmd);
+                $nbLines = (int)trim(ob_get_clean());
+
+
                 if (0 === $nbLines) {
                     $this->error("no lines to show");
                 } else {
@@ -71,6 +82,9 @@ class PhpTailer
                         $startLine++;
                     } else {
                         $startLine = $nbLines - ($this->nipp * $page);
+                        if ($startLine < 0) {
+                            $startLine = 0;
+                        }
                     }
 
 //                    a("nbLines=$nbLines, nbPages=$nbPages, startLine=$startLine");
@@ -86,6 +100,7 @@ class PhpTailer
                     // cat kamille.log.txt | grep "\[debug\]" | tail -n+2 | head -n 3
                     // works on ubuntu and mac
                     $cmd .= " | tail -n+$startLine | head -n " . $this->nipp;
+
 
                     ob_start();
                     passthru($cmd);

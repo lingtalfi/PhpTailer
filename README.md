@@ -89,6 +89,10 @@ PhpTailer::create()
 History Log
 ------------------
     
+- 1.0.1 -- 2018-03-25
+
+    - fix negative starting line in reverse mode problem
+    
 - 1.0.0 -- 2018-03-23
 
     - initial commit

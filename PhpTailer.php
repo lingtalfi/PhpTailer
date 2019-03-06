@@ -1,10 +1,10 @@
 <?php
 
 
-namespace PhpTailer;
+namespace Ling\PhpTailer;
 
 
-use Bat\FileTool;
+use Ling\Bat\FileTool;
 
 /**
  * Works only on a machine with the following programs:
